@@ -1,0 +1,7 @@
+<input
+                type="text"
+                className="add"
+                placeholder="Add New"
+                onKeyDown={this.addItem}
+                ref={input => (this.addInputRef = input)}
+              />

@@ -1,12 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './style.css';
+import Input from './components/input.js';
 
 class App extends React.Component {
   constructor(props) {
     super(props);
-    //this.handleKeyPress = this.handleKeyPress.bind(this);
-    this.addItem = this.addItem.bind(this);
+
+    this.inputRef = React.createRef();
+
     this.state = {
       mode: 'create',
       filter: false,
@@ -31,8 +33,6 @@ class App extends React.Component {
   }
 
   handleKeyPress = e => {
-    //console.log('e', e.keyCode);
-
     if (e.keyCode === 78) {
     }
   };
@@ -45,20 +45,36 @@ class App extends React.Component {
     window.removeEventListener('keydown', this.handleKeyPress);
   }
 
-  addItem(e) {
+  addItem = e => {
     if (e.keyCode === 13) {
       let dataArr = this.state.data;
       let arrSize = dataArr.length;
-      dataArr.push({
-        id: dataArr[arrSize - 1].id + 1,
-        text: e.target.value,
-        completed: false
-      });
       this.setState({
-        data: dataArr
+        data: [
+          ...this.state.data,
+          {
+            id: dataArr[arrSize - 1].id + 1,
+            text: e.target.value,
+            completed: false
+          }
+        ]
       });
+      this.inputRef.current.value = '';
     }
-  }
+  };
+
+  searchFilter = e => {
+    const type = e.target.value;
+    switch (type) {
+      case 'completed':
+        this.state.data.filter(item => item.completed == true);
+        break;
+    }
+  };
+
+  completedHandler = e => {
+    console.log('rr', e.target);
+  };
 
   render() {
     return (
@@ -68,20 +84,29 @@ class App extends React.Component {
             <div className="header">
               <h1>Things To Do</h1>
               <br />
-              <input
-                type="text"
-                className="add"
-                placeholder="Add New"
-                onKeyDown={this.addItem}
+              <Input
+                type="add"
+                handleFn={this.addItem}
+                setRef={this.inputRef}
               />
+              <select onChange={this.searchFilter}>
+                <option value="all" selected="selected">
+                  All
+                </option>
+                <option value="completed">Completed</option>
+                <option value="uncompleted">Uncompleted</option>
+              </select>
             </div>
             <ul>
               {this.state.data.map((item, i) => {
-                let class_name = `item_${i}`;
                 return (
-                  <li className={class_name} key={i}>
+                  <li className={`item_${item.id}`} key={i}>
                     <label>
-                      <input type="checkbox" />
+                      <input
+                        type="checkbox"
+                        name={`chk_${item.id}`}
+                        onClick={this.completedHandler}
+                      />
                       {item.text}
                     </label>
                   </li>
